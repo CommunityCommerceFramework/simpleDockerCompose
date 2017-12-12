@@ -1,0 +1,45 @@
+version: "3.0"
+
+services:
+  nginx:
+    build: ./build/nginx/
+    links:
+      - php-fpm
+    volumes:
+      - ./data/:/srv/project/:cached
+    ports:
+      - "8081:8080"
+      - "8082:80"
+    tty: true
+    stdin_open: true
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    build: ./build/php-fpm/
+    links:
+      - mysql
+    volumes:
+      - ./data/:/srv/project/:cached
+      #- ./docker/shared/magento-local.xml:/srv/project/magento/app/etc/local.xml
+    ports:
+      - "9000"
+    depends_on:
+      - mysql
+    working_dir: /srv/project/
+
+  mysql:
+    build: ./build/mysql/
+    volumes:
+      - ./build/mysql/dumps:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    tty: true
+    stdin_open: true
+    environment:
+      MYSQL_DATABASE: magento
+      MYSQL_PASSWORD: magento
+      MYSQL_ROOT_PASSWORD: magento
+      MYSQL_USER: magento
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "127.0.0.1", "-u", "root", "-pmagento"]

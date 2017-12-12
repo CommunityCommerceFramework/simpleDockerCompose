@@ -1,0 +1,83 @@
+client_max_body_size 20M;
+location = /favicon.ico {
+   log_not_found off;
+   access_log off;
+}
+
+location = /robots.txt {
+   log_not_found off;
+   access_log off;
+}
+
+location /varnish/probe {
+   return 200;
+}
+
+location ~ \..*/.*\.php$ {
+   #return 403;
+}
+
+location / {
+# This is cool because no php is touched for static content
+   try_files $uri $uri/ @rewrite;
+   index index.php;
+}
+
+location @rewrite {
+# Some modules enforce no slash (/) at the end of the URL
+# Else this rewrite block wouldn't be needed (GlobalRedirect)
+    rewrite ^/(.*)$ /index.php/$1;
+}
+
+location ~* \.(bmp|bz2|css|doc|eot|flv|gif|gz|ico|jpeg|jpg|js|less|pdf|png|rtf|swf|txt|woff|xml|svg)$ {
+   expires max;
+   log_not_found off;
+}
+
+location @handler {
+   client_max_body_size 20M;
+   rewrite / /index.php;
+}
+
+location ~ .php/ {
+   rewrite ^(.*.php)/ $1 last;
+}
+
+
+location /media/js/ {
+  gzip            on;
+  gzip_min_length 1000;
+  gzip_disable    "MSIE [1-6]\.";
+  expires         5d;
+  access_log      off;
+}
+
+location /media/css/ {
+  gzip            on;
+  gzip_min_length 1000;
+  gzip_disable    "MSIE [1-6]\.";
+  expires         5d;
+  access_log      off;
+}
+
+
+location /media/catalog/ {
+  access_log off;
+}
+
+location /js/ {
+        access_log off;
+}
+
+location /skin/ {
+  access_log off;
+}
+
+location /app/                 { return 404; }
+location /includes/            { return 404; }
+location /lib/                 { return 404; }
+location /media/downloadable/  { return 404; }
+location /pkginfo/             { return 404; }
+location /report/config.xml    { return 404; }
+location /var/                 { return 404; }
+location ~ /\.                 { return 404; }
