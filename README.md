@@ -10,6 +10,7 @@ start up an environment
 `docker-compose up -d`
 
 open the phpinfo via http://172.17.0.1:8081/info.php (local IP may or may not differ, but thats mine)
+on docker for windows: http://localhost:8081/info.php
 
 
 ## ToDo
